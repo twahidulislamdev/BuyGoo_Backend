@@ -7,6 +7,8 @@ require("dotenv").config();
 const route = require("./route");
 const session = require("express-session");
 const path = require("path");
+const cors = require("cors");
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

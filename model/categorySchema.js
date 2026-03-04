@@ -12,6 +12,13 @@ const categorySchema = new Schema(
       type: String,
       trim: true,
     },
+    slug: {
+      type: String,
+      trim: true,
+    },
+    status: {
+      type: String,
+    },
     subCategories: [
       {
         type: mongoose.Schema.Types.ObjectId,
