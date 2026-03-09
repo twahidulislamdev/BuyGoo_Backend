@@ -1,5 +1,9 @@
 const categorySchema = require("../model/categorySchema");
 
+// utility to normalise slug values
+const generateSlug = (text) =>
+  text.toString().trim().toLowerCase().replace(/\s+/g, "-");
+
 // =========== Create Category start Here ==============
 const createCategory = async (req, res) => {
   try {
@@ -22,7 +26,7 @@ const createCategory = async (req, res) => {
     const createcategory = new categorySchema({
       name,
       description,
-      slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
+      slug: slug ? generateSlug(slug) : generateSlug(name),
       status: status || "active",
     });
 
@@ -66,13 +70,15 @@ const getAllCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description } = req.body;
+    // accept slug and status in the body as well
+    const { name, description, slug, status } = req.body;
 
-    // Optional: at least one field should be provided
-    if (!name && !description) {
+    // require at least one field to update
+    if (!name && !description && !slug && !status) {
       return res.status(400).json({
         success: false,
-        message: "At least name or description is required to update",
+        message:
+          "At least one field (name, description, slug or status) is required to update",
       });
     }
 
@@ -84,10 +90,17 @@ const updateCategory = async (req, res) => {
       });
     }
 
-    // Only update fields that were sent
-    if (name) category.name = name;
+    // update provided fields
+    if (name) {
+      category.name = name;
+      // regenerate slug if caller didn't provide one explicitly
+      if (!slug) {
+        category.slug = generateSlug(name);
+      }
+    }
     if (description) category.description = description;
-
+    if (slug) category.slug = generateSlug(slug);
+    if (status) category.status = status;
     await category.save();
 
     res.status(200).json({
