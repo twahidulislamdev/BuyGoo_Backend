@@ -27,7 +27,7 @@ const createCategory = async (req, res) => {
       name,
       description,
       slug: slug ? generateSlug(slug) : generateSlug(name),
-      status: status || "active",
+      status: status || "Active",
     });
 
     await createcategory.save();
@@ -102,7 +102,6 @@ const updateCategory = async (req, res) => {
     if (slug) category.slug = generateSlug(slug);
     if (status) category.status = status;
     await category.save();
-
     res.status(200).json({
       success: true,
       message: "Category updated successfully",
