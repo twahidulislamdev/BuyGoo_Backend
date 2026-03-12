@@ -16,17 +16,31 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
-    size: {
-      type: String,
+    // arrays to store variants selected by the user
+    colors: {
+      type: [String],
+      default: [],
     },
-    color: {
-      type: String,
+    sizes: {
+      type: [String],
+      default: [],
     },
     ram: {
       type: String,
+      default: "",
     },
     storage: {
       type: String,
+      default: "",
+    },
+    stock: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
     },
     category: {
       type: String,
