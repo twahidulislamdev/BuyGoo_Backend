@@ -1,9 +1,9 @@
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 const express = require("express");
-const dbConnection = require("./database/dbConnection");
 const app = express();
 const port = 3000;
 require("dotenv").config();
+const dbConnection = require("./database/dbConnection");
 const route = require("./route");
 const session = require("express-session");
 const path = require("path");
@@ -27,9 +27,8 @@ app.use(
 );
 // Use this for session management End
 
-// Database Connection Start
+// Database Connection
 dbConnection();
-// Database Connection End
 
 // Routing Start
 app.use("/user", route);
