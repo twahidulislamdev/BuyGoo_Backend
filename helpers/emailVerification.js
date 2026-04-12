@@ -12,7 +12,7 @@ const emailVerification = async (email, otp, isResend = false) => {
   });
 
   await transporter.sendMail({
-    from: '"Backend E-Commerce" <twahidulislam2005@gmail.com>',
+    from: '"BuyGoo" <twahidulislam2005@gmail.com>',
     to: email,
     subject: isResend
       ? "Your Resend OTP Verification Code"
@@ -65,7 +65,7 @@ const emailVerification = async (email, otp, isResend = false) => {
         </div>
 
         <div style="background:#f9fafb;padding:15px;text-align:center;font-size:12px;color:#9ca3af;border-top:1px solid #e5e7eb">
-          © ${new Date().getFullYear()} Backend E-Commerce. All rights reserved.
+          © ${new Date().getFullYear()} BuyGoo. All rights reserved.
         </div>
       </div>
     `,
