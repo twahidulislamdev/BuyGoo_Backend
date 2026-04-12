@@ -34,9 +34,20 @@ const resendOtpController = async (req, res) => {
   const { email } = req.body;
   const resendOtp = await userSchema.findOne({ email });
   if (!resendOtp) {
-    return res.status(400).json({ message: "User Not Found" });
+    return res.status(400).json({ message: "Error: User Not Found" });
   }
-  // const otp = Math.floor(100000 + Math.random() * 900000);
+  
+  // Check if user is already verified
+  if (resendOtp.isVerified) {
+    return res.status(400).json({ message: "Error: Email already verified" });
+  }
+  
+  // Check if OTP is not expired yet
+  if (resendOtp.expireOtp && resendOtp.expireOtp > Date.now()) {
+    return res.status(400).json({ message: "Error: OTP is still valid. Please wait for it to expire before requesting a new one." });
+  }
+  
+  // Only send new OTP if user is not verified and OTP is expired
   const otp = crypto.randomInt(100000, 999999).toString();
   const expireOtp = Date.now() + 5 * 60 * 1000; // 5 minutes
   resendOtp.otp = otp;
