@@ -1,7 +1,7 @@
 const express = require("express");
+const router = express.Router();
 const userSchema = require("../model/userSchema");
 const emailValidation = require("../helpers/emailValidation");
-const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const emailVerification = require("../helpers/emailVerification");
@@ -69,7 +69,7 @@ const signupController = async (req, res) => {
   const otp = crypto.randomInt(100000, 999999).toString();
   const expiresOtp = new Date(Date.now() + 5 * 60 * 1000);
   // console.log("Generated OTP:", otp, "Expires at:", expiresOtp);
-  
+
   // Second way without using function End
   // ---------------Use crypto for send OTP End----------------
 

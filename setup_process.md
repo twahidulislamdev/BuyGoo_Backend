@@ -3,8 +3,50 @@
 ### 1. Install Dependencies
 
 ```bash
-npm install express mongoose mongodb bcrypt dotenv crypto
+npm install express mongoose mongodb dotenv
 ```
+
+-Then Create a `index.js` file in the Root and add this code........
+
+require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
+const express = require("express");
+const app = express();
+const port = 3000;
+require("dotenv").config();
+const dbConnection = require("./database/dbConnection");
+const route = require("./route");
+const session = require("express-session");
+const path = require("path");
+const cors = require("cors");
+app.use(cors());
+
+app.get("/", (req, res) => {
+res.send("Hello World!");
+});
+// Middleware for parsing JSON and URL-encoded data
+app.use("/uploads", express.static(path.join(\_\_dirname, "uploads")));
+
+// Use This for session management Start
+app.use(
+session({
+secret: "enmoon123",
+resave: false,
+saveUninitialized: true,
+cookie: { secure: false },
+}),
+);
+// Use this for session management End
+
+// Database Connection
+dbConnection();
+
+// Routing Start
+app.use("/user", route);
+// Routing End
+
+app.listen(port, () => {
+console.log(`Example app listening on port ${port}`);
+});
 
 ### 2. Database Connection
 
@@ -12,91 +54,293 @@ npm install express mongoose mongodb bcrypt dotenv crypto
 
   **Folder:** `database/`
 
-- Create database connection file: `dbConnection.js`
-- Use `mongoose.connect()`
-- Export database connection function
+- Create database connection file in this folder: `dbConnection.js`
 
-### 3. Project Structure
-
-Create the following folder structure:
-
-```
-project/
-├── controllers/
-│   ├── signinController.js
-
-├── models/
-│   └── User.js
-
-├── helpers/
-│   └── emailValidator.js
-    |__
-
-├── config/
-│   └── dbConnection.js
-
-├── routes/
-│   └── index.js
-    └── api/
-    ├── index.js
-    └── auth.js
-```
-
-## Implementation Steps
+const mongoose = require("mongoose");
+const dbConnection = async () => {
+mongoose
+.connect(`${process.env.DB_URL}`)
+.then(() => console.log("Database Connected!"));
+};
+module.exports = dbConnection;`
 
 ## 4. Route Structure
 
-**Folder:** `routes/`
-**Main Files:**
+-First of all make a router folder `routes/`
 
-- `index.js` (main app entry)
-- `api/index.js`
-- `api/auth.js`
+-Then Create `index.js` file and add this code
+const express = require("express");
+const router = express.Router();
+const apiRoute = require("./api");
 
-Purpose:
+router.use("/v1", apiRoute);
 
-- Central API routing
-- Authentication routes handled in `auth.js`
+module.exports = router;
 
----
+-Then Create `api` folder.
+-Then create `auth.js` file where you can do authentication related work. Like...
 
-### 5. Controllers Setup
+const express = require("express");
+const router = express.Router();
+const {
+signupController,
+loginController,
+logoutController,
+dashboardController,
+} = require("../../controllers/authController");
 
-**Folder:** `controllers/`
-Create:
+const {
+firstOtpController,
+resendOtpController,
+} = require("../../controllers/otpController");
+const authMiddleware = require("../../middleware/authMiddleware");
 
-- `signupController.js`
+router.post("/signup", signupController);
+router.post("/login", loginController);
+router.post("/logout", logoutController);
+router.post("/otpverify", firstOtpController);
+router.post("/resendotp", resendOtpController);
+router.get("/dashboard", authMiddleware, dashboardController);
 
-Like This `router.post("/signup", signupController);`
+// router.get("/login", (req, res) => {
+// res.send("Data Ache");
+// });
 
-- `signinController.js` - Handle user login / registration
+module.exports = router;
 
-### 6.Create Models Folder
+### 5. Controllers Setup process
 
-**Folder:** `models/`
+First of all Create a `controllers/` folder in root.
+Then Create working related file like: - `authController.js`
 
-- **File**: `models/UserSchems.js`
-- Create Mongoose schema with fields:
-  - `firstName` (String, required)
-  - `email` (String, required, unique)
-  - `password` (String, required, hashed)
+const express = require("express");
+const router = express.Router();
+const userSchema = require("../model/userSchema");
+/_ ======================= SIGNUP CONTROLLER Start ======================= _/
+const signupController = async (req, res) => {
+const { firstName, lastName, email, password } = req.body;
+if (!firstName) {
+return res.json({
+message: "Error: First Name Required",
+});
+}
+if (!lastName) {
+return res.json({
+message: "Error: Last Name Required",
+});
+}
+if (!email) {
+return res.json({
+message: "Error: Email Required",
+});
+}
+if (!password) {
+return res.json({
+message: "Error: Password Required",
+});
+}
+if (!emailValidation(email)) {
+return res.json({
+message: "Error: Email format is not Correct",
+});
+}
+// Duplicate Email Check Start
+// -------------First Way--------------
+const duplicateEmail = await userSchema.findOne({ email });
+if (duplicateEmail) {
+return res.json({
+message: "Error: Email Already Exists",
+});
+}
+// -----------------Second Way ------------
+// const duplicateEmail = await userSchema.find({ email });
+// if (duplicateEmail.length > 0) {
+// return res.json({
+// message: "Error: This Email Already Exists",
+// });
+// }
+// Duplicate Email Check End
 
-### 7. Validation
+// ------------Use crypto for send OTP Start-------------
 
-- **File**: `signupController.js`
-- Implement input validation
-- Validate required fields
-- Validate email format
-- Validate password
+// First way using function Start
+// function generateOTP() {
+// const otp = crypto.randomInt(100000, 999999).toString();
+// const expiresOTP = new Date(Date.now() + 10 _ 60 _ 1000);
+// return { otp, expiresOTP };
+// }
+// const { otp, expiresOTP } = generateOTP();
+// console.log("Generated OTP:", otp, "Expires at:", expiresOTP);
+// First way using function End
 
-### 8. Email Validation Helper
+// Second way without using function Start
+// const otp = Math.floor(100000 + Math.random() \* 900000);
 
-**Folder:** `helpers/`
+const otp = crypto.randomInt(100000, 999999).toString();
+const expiresOtp = new Date(Date.now() + 5 _ 60 _ 1000);
+// console.log("Generated OTP:", otp, "Expires at:", expiresOtp);
 
-- **File**: `helpers/emailValidator.js`
-- Create email validation using regex
+// Second way without using function End
+// ---------------Use crypto for send OTP End----------------
 
-### 9. Database Operations
+bcrypt.hash(password, 10, function (err, hash) {
+const users = new userSchema({
+firstName,
+lastName,
+email,
+password: hash,
+// otp: generateOTP(), // First Way Using Function
+otp, // Second Way Without Function
+expireOtp: expiresOtp,
+});
+emailVerification(email, otp);
+users.save();
+res.json({
+messege: "Data Send",
+});
+});
+};
+/_ ======================= SIGNUP CONTROLLER End ======================= _/
+
+### 6.Create Models Folder `models/`
+
+Then Create `authSchems.js` file
+
+const express = require("express");
+const { Admin } = require("mongodb");
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
+
+const authSchema = new Schema({
+firstName: {
+type: String,
+required: true,
+},
+lastName: {
+type: String,
+required: true,
+},
+email: {
+type: String,
+required: true,
+},
+password: {
+type: String,
+required: true,
+},
+otp: {
+type: String,
+},
+expireOtp: {
+type: Date,
+},
+isVerified: {
+type: Boolean,
+default: false,
+},
+role: {
+type: String,
+default: "user",
+enum: ["user", "admin"],
+},
+});
+
+module.exports = mongoose.model("userList", authSchema);
+
+### 7. Email Validation Helper
+
+Create **Folder:** `helpers/`
+
+- **File**: `helpers/emailValidation.js`
+  const emailValidation = (email) => {
+  const emailReg =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)\*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  return emailReg.test(email);
+  };
+
+module.exports = emailValidation;
+
+- **File**: `helpers/emailVerification.js`
+  const nodemailer = require("nodemailer");
+
+const emailVerification = async (email, otp, isResend = false) => {
+const transporter = nodemailer.createTransport({
+service: "gmail",
+port: 587,
+secure: false,
+auth: {
+user: process.env.EMAIL_USER,
+pass: process.env.EMAIL_PASS,
+},
+});
+
+await transporter.sendMail({
+from: '"BuyGoo" <twahidulislam2005@gmail.com>',
+to: email,
+subject: isResend
+? "Your Resend OTP Verification Code"
+: "Your OTP Verification Code",
+html: `
+
+<div style="max-width:600px;margin:0 auto;font-family:Arial,Helvetica,sans-serif;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+<div style="background:#f9fafb;padding:20px;text-align:center;border-bottom:1px solid #e5e7eb">
+<h1 style="color:#111827;margin:0;font-size:22px">
+BuyGoo
+</h1>
+</div>
+
+        <div style="padding:20px;color:#374151">
+          <h2 style="margin-top:0;color:#111827">OTP Verification</h2>
+
+          <p style="font-size:14px">Hello,</p>
+
+          <p style="font-size:14px">
+            Use the following One-Time Password (OTP).
+            This OTP is valid for <strong>5 minutes</strong>.
+          </p>
+
+         <!-- OTP Box -->
+        <div style="text-align:center;margin:30px 0">
+          <span style="
+            display:inline-block;
+            padding:15px 30px;
+            font-size:28px;
+            font-weight:bold;
+            letter-spacing:6px;
+            color:#111827;
+            background:#f9fafb;
+            border-radius:6px;
+            border:2px solid #e5e7eb;
+          ">
+            ${otp}
+          </span>
+        </div>
+        <p style="font-size:12px;color: #555;text-align:center;">
+         Never share this code with anyone.</p>
+
+          <p style="font-size:14px;color:#6b7280;background:#f9fafb;padding:12px;border-radius:4px;text-align:center">
+            If you did not request this code, please ignore this email.
+          </p>
+
+          <p style="font-size:14px;margin-top:30px">
+            Regards,<br />
+            <strong>BuyGoo Team</strong>
+          </p>
+        </div>
+
+        <div style="background:#f9fafb;padding:15px;text-align:center;font-size:12px;color:#9ca3af;border-top:1px solid #e5e7eb">
+          © ${new Date().getFullYear()} BuyGoo. All rights reserved.
+        </div>
+      </div>
+    `,
+
+});
+};
+
+module.exports = emailVerification;
+
+### 8. Database Operations
 
 - In `signupController.js`, send validated data to database
 
@@ -144,17 +388,71 @@ const expireOtp = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 - Configure email verification helpers
 
 ### 16. OTP Verification Controller
-- Create `otpController.js`
-- Verify OTP
-- Check expiry
-- Confirm user email
+
+- Create `otpController.js` file
+
+const emailVerification = require("../helpers/emailVerification");
+const userSchema = require("../model/userSchema");
+const crypto = require("crypto");
+
+// ====================== firstOtpController Part Start Here =================
+const firstOtpController = async function (req, res) {
+const { email, otp } = req.body;
+const user = await userSchema.findOne({ email });
+if (!user) {
+return res.status(400).json({
+message: "User Not Found",
+});
+}
+if (user.isVerified) {
+return res.json({
+message: "User Is Verified",
+});
+}
+if (user.otp !== otp || user.expireOtp < Date.now()) {
+return res.status(400).json({ message: "Invalid OTP" });
+}
+user.isVerified = true;
+user.otp = undefined;
+user.expireOtp = undefined;
+await user.save();
+res.status(200).json({
+message: "Email Verification Done",
+});
+};
+// ==================== firstOtpController Part End Here =================
+
+//================= ResendOtpController Part Start Here =================
+const resendOtpController = async (req, res) => {
+const { email } = req.body;
+const resendOtp = await userSchema.findOne({ email });
+if (!resendOtp) {
+return res.status(400).json({ message: "Error: User Not Found" });
+}
+
+// Check if user is already verified
+if (resendOtp.isVerified) {
+return res.status(400).json({ message: "Error: Email already verified" });
+}
+
+// Check if OTP is not expired yet
+if (resendOtp.expireOtp && resendOtp.expireOtp > Date.now()) {
+return res.status(400).json({ message: "Error: OTP is still valid. Please wait for it to expire before requesting a new one." });
+}
+
+// Only send new OTP if user is not verified and OTP is expired
+const otp = crypto.randomInt(100000, 999999).toString();
+const expireOtp = Date.now() + 5 _ 60 _ 1000; // 5 minutes
+resendOtp.otp = otp;
+resendOtp.expireOtp = expireOtp;
+await resendOtp.save();
+await emailVerification(email, otp, true);
+res.status(200).json({
+message: "OTP Resend Successfully",
+});
+};
+//=================ResendOtpController Part End Here =================
+
+module.exports = { firstOtpController, resendOtpController };
 
 ---
-
-## Notes
-
-- Always hash passwords before storing in database
-- Use environment variables for sensitive configuration
-- Implement proper error handling throughout
-- Add rate limiting for authentication endpoints
-- Consider adding refresh tokens for enhanced security

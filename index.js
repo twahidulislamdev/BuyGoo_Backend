@@ -4,7 +4,7 @@ const app = express();
 const port = 3000;
 require("dotenv").config();
 const dbConnection = require("./database/dbConnection");
-const route = require("./route");
+const routes = require("./routes");
 const session = require("express-session");
 const path = require("path");
 const cors = require("cors");
@@ -30,9 +30,9 @@ app.use(
 // Database Connection
 dbConnection();
 
-// Routing Start
-app.use("/user", route);
-// Routing End
+// Routing 
+app.use("/user", routes);
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

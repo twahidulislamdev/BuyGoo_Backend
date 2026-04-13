@@ -21,7 +21,7 @@ const emailVerification = async (email, otp, isResend = false) => {
       <div style="max-width:600px;margin:0 auto;font-family:Arial,Helvetica,sans-serif;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
         <div style="background:#f9fafb;padding:20px;text-align:center;border-bottom:1px solid #e5e7eb">
           <h1 style="color:#111827;margin:0;font-size:22px">
-            Backend E-Commerce
+            BuyGoo
           </h1>
         </div>
 
@@ -60,7 +60,7 @@ const emailVerification = async (email, otp, isResend = false) => {
 
           <p style="font-size:14px;margin-top:30px">
             Regards,<br />
-            <strong>Backend E-Commerce Team</strong>
+            <strong>BuyGoo Team</strong>
           </p>
         </div>
 
