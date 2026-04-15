@@ -1,9 +1,9 @@
 const express = require("express");
-const router = express.Router();
 const userSchema = require("../model/userSchema");
-const emailValidation = require("../helpers/emailValidation");
+const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const emailValidation = require("../helpers/emailValidation");
 const emailVerification = require("../helpers/emailVerification");
 
 /* ======================= SIGNUP CONTROLLER Start ======================= */
@@ -73,6 +73,7 @@ const signupController = async (req, res) => {
   // Second way without using function End
   // ---------------Use crypto for send OTP End----------------
 
+  //bcript for hash password
   bcrypt.hash(password, 10, function (err, hash) {
     const users = new userSchema({
       firstName,
@@ -86,7 +87,7 @@ const signupController = async (req, res) => {
     emailVerification(email, otp);
     users.save();
     res.json({
-      messege: "Data Send",
+      messege: "Account Created Successfully. Please Verify Using OTP",
     });
   });
 };
@@ -125,10 +126,10 @@ const loginController = async (req, res) => {
   // Create session
   req.session.isAuth = true;
   req.session.userSchema = {
-    id: existingUser.id,
-    email: existingUser.email,
     firstName: existingUser.firstName,
     lastName: existingUser.lastName,
+    id: existingUser.id,
+    email: existingUser.email,
   };
   return res.json({
     message: "Login in Successfully",
