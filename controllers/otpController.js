@@ -3,7 +3,7 @@ const userSchema = require("../model/userSchema");
 const crypto = require("crypto");
 
 // ====================== firstOtpController Part Start Here =================
-const firstOtpController = async function (req, res) {
+const firstOtpController = async (req, res) => {
   const { email, otp } = req.body;
   const user = await userSchema.findOne({ email });
   if (!user) {
@@ -36,17 +36,22 @@ const resendOtpController = async (req, res) => {
   if (!resendOtp) {
     return res.status(400).json({ message: "Error: User Not Found" });
   }
-  
+
   // Check if user is already verified
   if (resendOtp.isVerified) {
     return res.status(400).json({ message: "Error: Email already verified" });
   }
-  
+
   // Check if OTP is not expired yet
   if (resendOtp.expireOtp && resendOtp.expireOtp > Date.now()) {
-    return res.status(400).json({ message: "Error: OTP is still valid. Please wait for it to expire before requesting a new one." });
+    return res
+      .status(400)
+      .json({
+        message:
+          "Error: OTP is still valid. Please wait for it to expire before requesting a new one.",
+      });
   }
-  
+
   // Only send new OTP if user is not verified and OTP is expired
   const otp = crypto.randomInt(100000, 999999).toString();
   const expireOtp = Date.now() + 5 * 60 * 1000; // 5 minutes
@@ -59,6 +64,5 @@ const resendOtpController = async (req, res) => {
   });
 };
 //=================ResendOtpController Part End Here =================
-
 
 module.exports = { firstOtpController, resendOtpController };
