@@ -1,5 +1,8 @@
 const express = require("express");
+const router = express.Router();
+router.use(express.json());
 const multer = require("multer");
+
 const {
   createProduct,
   getAllProducts,
@@ -7,8 +10,6 @@ const {
   updateProduct,
   deleteAllProducts,
 } = require("../../controllers/productController");
-const router = express.Router();
-router.use(express.json());
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
