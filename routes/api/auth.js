@@ -5,9 +5,15 @@ const {
   loginController,
   logoutController,
   dashboardController,
+  DeleteUserController,
+  EditUserController,
+  AddNewUserController,
 } = require("../../controllers/authController");
 
-const { FirstOtpController, ResendOtpController } = require("../../controllers/otpController");
+const {
+  FirstOtpController,
+  ResendOtpController,
+} = require("../../controllers/otpController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
@@ -16,6 +22,10 @@ router.post("/login", loginController);
 router.post("/logout", logoutController);
 router.post("/otpverify", FirstOtpController);
 router.post("/resendotp", ResendOtpController);
+router.post("/edituser", EditUserController);
+router.post("/deleteuser", DeleteUserController);
+router.post("/addnewuser", AddNewUserController); // New route for adding user by Admin
+
 router.get("/dashboard", authMiddleware, dashboardController);
 
 // router.get("/login", (req, res) => {

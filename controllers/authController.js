@@ -151,6 +151,98 @@ const logoutController = (req, res) => {
 };
 /* ======================= LOGOUT CONTROLLER End ======================= */
 
+// ===================== Edit User Controller Start =====================
+const EditUserController = async (req, res) => {
+  try {
+    const { firstName, lastName, email, status } = req.body;
+
+    if (!email) {
+      return res.json({ message: "Error: Email Required" });
+    }
+
+    const updatedUser = await userSchema.findOneAndUpdate(
+      { email },
+      { firstName, lastName, status },
+      { new: true },
+    );
+    if (!updatedUser) {
+      return res.json({ message: "Error: User Not Found" });
+    }
+    return res.json({
+      message: "User Updated Successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.json({
+      message: "Error updating user",
+      error: error.message,
+    });
+  }
+};
+// ==================== Edit User Controller End =========================
+
+// ===================== Delete User Controller Start =====================
+const DeleteUserController = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.json({ message: "Error: Email Required" });
+  }
+  const deletedUser = await userSchema.findOneAndDelete({ email });
+  if (!deletedUser) {
+    return res.json({ message: "Error: User Not Found" });
+  }
+  return res.json({ message: "User Deleted Successfully" });
+};
+// ===================== Delete User Controller End =========================
+
+// ===================== Add New User By Admin Controller Start =============
+const AddNewUserController = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+
+    if (!firstName) {
+      return res.json({ message: "Error: First Name Required" });
+    }
+    if (!lastName) {
+      return res.json({ message: "Error: Last Name Required" });
+    }
+    if (!email) {
+      return res.json({ message: "Error: Email Required" });
+    }
+    if (!password) {
+      return res.json({ message: "Error: Password Required" });
+    }
+    if (!emailValidation(email)) {
+      return res.json({ message: "Error: Invalid Email Format" });
+    }
+
+    // Check for Duplicate Email
+    const duplicateEmail = await userSchema.findOne({ email });
+    if (duplicateEmail) {
+      return res.json({ message: "Error: Email Already Exists" });
+    }
+
+    // Hash password
+    const hash = await bcrypt.hash(password, 10);
+
+    const newUser = new userSchema({
+      firstName,
+      lastName,
+      email,
+      password: hash,
+    });
+
+    await newUser.save();
+    return res.json({ message: "User Added Successfully" });
+  } catch (error) {
+    return res.json({
+      message: "Error adding user",
+      error: error.message,
+    });
+  }
+};
+// ===================== Add New User By Admin Controller End ==============
+
 /* ======================= DASHBOARD CONTROLLER Start ======================= */
 const dashboardController = (req, res) => {
   if (req.session.isAuth && req.session.userSchema) {
@@ -167,5 +259,8 @@ module.exports = {
   signupController,
   loginController,
   logoutController,
+  EditUserController,
+  DeleteUserController,
+  AddNewUserController,
   dashboardController,
 };
