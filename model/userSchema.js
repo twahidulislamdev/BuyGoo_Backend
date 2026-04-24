@@ -32,13 +32,17 @@ const userSchema = new Schema({
   },
   status: {
     type: String,
-    default: "active",
-    enum: ["active", "inactive"],
+    default: "new",
+    enum: ["new", "active", "inactive", "blocked"],
   },
   role: {
     type: String,
     default: "user",
     enum: ["user", "admin"],
+  },
+  joinedAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

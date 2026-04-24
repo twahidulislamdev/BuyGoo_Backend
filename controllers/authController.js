@@ -151,6 +151,20 @@ const logoutController = (req, res) => {
 };
 /* ======================= LOGOUT CONTROLLER End ======================= */
 
+// ===================== Get All User Controller Start ==================
+const GetAllUserController = async (req, res) => {
+  try {
+    const users = await userSchema.find();
+    return res.json({ message: "Users retrieved successfully", users });
+  } catch (error) {
+    return res.json({
+      message: "Error retrieving users",
+      error: error.message,
+    });
+  }
+};
+// ==================== Get All User Controller End =====================
+
 // ===================== Edit User Controller Start =====================
 const EditUserController = async (req, res) => {
   try {
@@ -182,7 +196,7 @@ const EditUserController = async (req, res) => {
 // ==================== Edit User Controller End =========================
 
 // ===================== Delete User Controller Start =====================
-const DeleteUserController = async (req, res) => {
+const DeleteSingleUserController = async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.json({ message: "Error: Email Required" });
@@ -193,12 +207,26 @@ const DeleteUserController = async (req, res) => {
   }
   return res.json({ message: "User Deleted Successfully" });
 };
-// ===================== Delete User Controller End =========================
+// ===================== Delete User Controller End ========================
+
+// ===================== Delete All User Controller Start ==================
+const DeleteAllUserController = async (req, res) => {
+  try {
+    await userSchema.deleteMany({});
+    return res.json({ message: "All Users Deleted Successfully" });
+  } catch (error) {
+    return res.json({
+      message: "Error deleting users",
+      error: error.message,
+    });
+  }
+};
+// ==================== Delete All User Controller End ====================
 
 // ===================== Add New User By Admin Controller Start =============
 const AddNewUserController = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, joinedAt } = req.body;
 
     if (!firstName) {
       return res.json({ message: "Error: First Name Required" });
@@ -230,6 +258,7 @@ const AddNewUserController = async (req, res) => {
       lastName,
       email,
       password: hash,
+      joinedAt: joinedAt || new Date(), // Use provided joinedAt or default to current date
     });
 
     await newUser.save();
@@ -260,7 +289,9 @@ module.exports = {
   loginController,
   logoutController,
   EditUserController,
-  DeleteUserController,
+  GetAllUserController,
+  DeleteSingleUserController,
+  DeleteAllUserController,
   AddNewUserController,
   dashboardController,
 };

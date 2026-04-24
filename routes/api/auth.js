@@ -5,9 +5,11 @@ const {
   loginController,
   logoutController,
   dashboardController,
-  DeleteUserController,
+  GetAllUserController,
   EditUserController,
+  DeleteSingleUserController,
   AddNewUserController,
+  DeleteAllUserController,
 } = require("../../controllers/authController");
 
 const {
@@ -22,8 +24,10 @@ router.post("/login", loginController);
 router.post("/logout", logoutController);
 router.post("/otpverify", FirstOtpController);
 router.post("/resendotp", ResendOtpController);
+router.get("/getallusers", GetAllUserController);
 router.post("/edituser", EditUserController);
-router.post("/deleteuser", DeleteUserController);
+router.post("/deleteuser", DeleteSingleUserController);
+router.post("/deleteallusers", DeleteAllUserController);
 router.post("/addnewuser", AddNewUserController); // New route for adding user by Admin
 
 router.get("/dashboard", authMiddleware, dashboardController);
