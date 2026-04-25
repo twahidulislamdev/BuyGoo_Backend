@@ -1,13 +1,14 @@
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 const express = require("express");
 const app = express();
-const port = 3000;
 require("dotenv").config();
 const dbConnection = require("./database/dbConnection");
 const routes = require("./routes");
 const session = require("express-session");
 const path = require("path");
 const cors = require("cors");
+const port = process.env.PORT || 3000;
+
 app.use(
   cors({
     origin: "http://localhost:5173",
