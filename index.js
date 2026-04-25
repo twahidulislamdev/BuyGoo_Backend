@@ -8,7 +8,12 @@ const routes = require("./routes");
 const session = require("express-session");
 const path = require("path");
 const cors = require("cors");
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -30,9 +35,8 @@ app.use(
 // Database Connection
 dbConnection();
 
-// Routing 
+// Routing
 app.use("/user", routes);
-
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

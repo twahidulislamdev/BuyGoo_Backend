@@ -273,7 +273,7 @@ const AddNewUserController = async (req, res) => {
 // ===================== Add New User By Admin Controller End ==============
 
 /* ======================= DASHBOARD CONTROLLER Start ======================= */
-const dashboardController = (req, res) => {
+const DashboardController = (req, res) => {
   if (req.session.isAuth && req.session.userSchema) {
     return res.json({
       message: "Welcome to Dashboard",
@@ -284,6 +284,18 @@ const dashboardController = (req, res) => {
 };
 /* ======================= DASHBOARD CONTROLLER End ======================= */
 
+/* ======================= CURRENT USER CONTROLLER Start ======================= */
+const CurrentUserController = (req, res) => {
+  if (req.session.isAuth && req.session.userSchema) {
+    return res.json({
+      message: "Current User Retrieved Successfully",
+      user: req.session.userSchema,
+    });
+  }
+  return res.json({ message: "Access Denied" });
+};
+/* ======================= CURRENT USER CONTROLLER End ======================= */
+
 module.exports = {
   signupController,
   loginController,
@@ -293,5 +305,6 @@ module.exports = {
   DeleteSingleUserController,
   DeleteAllUserController,
   AddNewUserController,
-  dashboardController,
+  DashboardController,
+  CurrentUserController,
 };

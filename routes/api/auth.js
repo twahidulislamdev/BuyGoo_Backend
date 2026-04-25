@@ -4,12 +4,13 @@ const {
   signupController,
   loginController,
   logoutController,
-  dashboardController,
   GetAllUserController,
   EditUserController,
   DeleteSingleUserController,
   AddNewUserController,
   DeleteAllUserController,
+  DashboardController,
+  CurrentUserController,
 } = require("../../controllers/authController");
 
 const {
@@ -29,8 +30,8 @@ router.post("/edituser", EditUserController);
 router.post("/deleteuser", DeleteSingleUserController);
 router.post("/deleteallusers", DeleteAllUserController);
 router.post("/addnewuser", AddNewUserController); // New route for adding user by Admin
-
-router.get("/dashboard", authMiddleware, dashboardController);
+router.get("/dashboard", authMiddleware, DashboardController);
+router.get("/currentuser", CurrentUserController);
 
 // router.get("/login", (req, res) => {
 //   res.send("Data Ache");
