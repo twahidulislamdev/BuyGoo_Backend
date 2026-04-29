@@ -37,7 +37,7 @@ app.use(
 dbConnection();
 
 // Routing
-app.use("/user", routes);
+app.use("/api", routes);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

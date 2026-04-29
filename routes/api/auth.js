@@ -35,7 +35,7 @@ router.get("/dashboard", authMiddleware, DashboardController);
 router.get("/currentuser", CurrentUserController);
 router.get("/getme", async (req, res) => {
   if (!req.session.userSchema || !req.session.userSchema.email) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized Person" });
   }
   const findUser = await userSchema.findOne({
     email: req.session.userSchema.email,
